@@ -1,5 +1,5 @@
 // HomePage.tsx
-import Header from '../components/Header';
+import Header from '../components/sameUse/Header';
 
 export default function ExamPage() {
   return (
