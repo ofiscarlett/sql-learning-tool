@@ -1,14 +1,19 @@
 import React, { useContext, useState} from 'react';
 import headerImage from '../../images/school-logo-05.png'; 
+import { useAuth } from '../../context/AuthContext';
 import { LanguageContext } from '../../context/languageContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const langContext = useContext(LanguageContext);
   const { multiLang, ChangeLanguage } = (langContext || { multiLang: 'FI', ChangeLanguage: () => {} }) as { multiLang: 'EN' | 'FI'; ChangeLanguage: (lang: 'EN' | 'FI') => void };
   console.log("🔁 current multiLang:", multiLang);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  //const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [studentName, setStudentName] = useState('');
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
+/*
   const handleLogin = () => {
     // login API、OAuth 
     setIsLoggedIn(true);
@@ -19,7 +24,7 @@ export default function Header() {
     setIsLoggedIn(false);
     setStudentName('');
   };
-
+*/
   const text = {
     EN: {
       title: 'Moodle',
@@ -51,7 +56,6 @@ export default function Header() {
           <span title="Search">🔍</span>
           <span title="Notifications">🔔</span>
           <span title="Messages">💬</span>
-
           {/* language  */}
           <div className="flex space-x-2 items-center">
             <button onClick={() => ChangeLanguage('EN')} className={multiLang === 'EN' ? 'font-bold text-black' : ''}>EN</button>
@@ -60,13 +64,13 @@ export default function Header() {
           </div>
 
           {/* login */}
-          {isLoggedIn ? (
+          {user ? (
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">{studentName}</span>
-              <button onClick={handleLogout} className="text-blue-500 underline">Logout</button>
+              <span className="font-semibold text-gray-700">{user}</span>
+              <button onClick={logout} className="text-blue-500 underline">Logout</button>
             </div>
           ) : (
-            <button onClick={handleLogin} className="text-blue-500 underline">Login</button>
+            <button onClick={()=>navigate("/login")} className="text-blue-500 underline">Login</button>
           )}
         </div>
 

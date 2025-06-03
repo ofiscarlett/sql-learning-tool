@@ -30,14 +30,18 @@ export default function LoginForm() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/login', {
+      const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, password }),
       });
       const result = await response.json();
+      
       if (response.ok) {
-        login(result.name); // 儲存學生名字到 context/localStorage
+        //login(result.name); // 儲存學生名字到 context/localStorage
+        login(result.student.name);
+        //console.log('✅ Login success!');
+        alert('Login successful');
         navigate('/');
       } else {
         alert(result.message || 'Login failed');

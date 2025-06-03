@@ -13,7 +13,7 @@ export default function HomePage() {
     multiLang: 'EN' | 'FI';
     ChangeLanguage: (lang: 'EN' | 'FI') => void;
   };
-  console.log("🔁 current multiLang:", multiLang);
+  console.log("current multiLang:", multiLang);
 
   const text = {
     EN: {
