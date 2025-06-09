@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 //const db = require('./db/db'); 
 const db = require('./db/db'); 
+const { use } = require('react');
 
 dotenv.config();
 
@@ -78,7 +79,10 @@ app.post('/api/addStudent', async (req, res) => {
   }
 });
 
-
+const questionRoutes = require('./routes/questions');
+app.use('/api/questions', questionRoutes);
+//const checkAnsRoutes = require('./routes/checkAns');
+//app.use('/api/checkAns', checkAnsRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

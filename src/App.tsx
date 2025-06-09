@@ -5,6 +5,7 @@ import './App.css';
 import Header from './components/hNf/Header';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import ExamPage from './pages/ExamPage';
 
 function App() {
 
@@ -14,6 +15,8 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/ExamPage" element={<ExamPage />} />
+      {/* Add more routes as needed */}
     </Routes>
      
 
