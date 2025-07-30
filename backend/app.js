@@ -8,6 +8,8 @@ const rateLimit = require('express-rate-limit');
 //const db = require('./db/db'); 
 const db = require('./db/db'); 
 const { use } = require('react');
+const totalScoreRoutes = require('./routes/totalScore');
+const questionRoutes = require('./routes/questions');
 
 dotenv.config();
 
@@ -16,11 +18,14 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-
+//console.log('totalScoreRoutes:', totalScoreRoutes);
+app.use('/api/score', totalScoreRoutes);
+app.use('/api/questions', questionRoutes);
 //test database route and connection
 db.query('SELECT NOW()')
   .then((res) => {
@@ -79,10 +84,9 @@ app.post('/api/addStudent', async (req, res) => {
   }
 });
 
-const questionRoutes = require('./routes/questions');
+
 app.use('/api/questions', questionRoutes);
-//const checkAnsRoutes = require('./routes/checkAns');
-//app.use('/api/checkAns', checkAnsRoutes);
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

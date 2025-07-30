@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
+const { calculatePartialScore } = require('../routes/partialScore');
 
 router.get('/random', async (req, res) => {
   try {
-    const result = await db.query('SELECT id, question_text FROM questions ORDER BY RANDOM() LIMIT 1');
+      const result = await db.query(`
+      SELECT id, question_text, question_type, options, correct_option_index, correct_option_indexes
+      FROM questions
+      ORDER BY RANDOM() LIMIT 1
+    `);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'No questions found' });
     }
@@ -14,33 +19,73 @@ router.get('/random', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+// GET /answers/:studentId
+router.get('/answers/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  const result = await db.query(`
+    SELECT a.*, q.question_text 
+    FROM answers a 
+    JOIN questions q ON a.question_id = q.id 
+    WHERE a.student_id = $1
+    ORDER BY a.created_at DESC
+  `, [studentId]);
+  res.json(result.rows);
+});
+
 
 // ✅ POST /api/questions/check-ans
 router.post('/check-ans', async (req, res) => {
-  const { questionId, studentAns } = req.body;
+  const { questionId, studentAns, studentId } = req.body;
+  console.log('Received studentAns:', studentAns);
+  console.log('Type of studentAns:', typeof studentAns);
+  if (!questionId || studentAns === undefined || !studentId) {
+    return res.status(400).json({ result: false, message: 'Missing required fields.' });
+  }
 
   try {
-    const qResult = await db.query('SELECT correct_answer FROM questions WHERE id = $1', [questionId]);
-    const correctSQL = qResult.rows[0]?.correct_answer;
+    const qResult = await db.query('SELECT * FROM questions WHERE id = $1', [questionId]);
+    const question = qResult.rows[0];
+    if (!question) return res.status(404).json({ result: false, message: 'Question not found.' });
 
-    if (!correctSQL) {
-      return res.status(404).json({ result: false, message: 'Correct answer not found.' });
+    let isCorrect = false;
+    let score = 0;
+
+    if (question.question_type === 'mcq') {
+     //const correctOption = question.options[question.correct_option_index];
+
+      //isCorrect =Number(studentAns) === correctOption;
+      isCorrect =Number(studentAns) === question.correct_option_index;
+      score = isCorrect ? 100 : 0;
+
+    } else if (question.question_type === 'multi') {
+      const studentChoices = Array.isArray(studentAns) ? studentAns : JSON.parse(studentAns);
+      //const correct = question.correct_option_indexes.sort().join(',');
+      //const submitted = studentChoices.map(Number).sort().join(',');
+      const correctArray = (question.correct_option_indexes || []).map(Number).sort();
+      const studentArray = studentChoices.map(Number).sort();
+      const intersection = studentArray.filter(i => correctArray.includes(i));
+      const partialScore = (intersection.length / correctArray.length) * 100;
+      
+      //isCorrect = submitted === correct;
+      isCorrect = JSON.stringify(studentArray) === JSON.stringify(correctArray); 
+      score = Math.round(partialScore);
+
+      //score = isCorrect ? 100 : 0;
+
+    } else {
+      return res.status(400).json({ result: false, message: 'Unsupported question type.' });
     }
 
-    const [studentResult, correctResult] = await Promise.all([
-      db.query(studentAns),
-      db.query(correctSQL),
-    ]);
+    await db.query(
+      `INSERT INTO answers (question_id, student_id, submitted_query, is_correct, score, submitted_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())`,
+      [questionId, studentId, JSON.stringify(studentAns), isCorrect, score]
+    );
 
-    const sortRows = (rows) =>
-      JSON.stringify([...rows].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
-
-    const isCorrect = sortRows(studentResult.rows) === sortRows(correctResult.rows);
-
-    res.json({ result: isCorrect });
+    res.json({ result: isCorrect, score });
   } catch (err) {
-    console.error('Error checking answer:', err);
-    res.status(400).json({ result: false, message: err.message });
+    console.error('Error checking answer:', err.message);
+    res.status(500).json({ result: false, message: err.message });
   }
 });
 
