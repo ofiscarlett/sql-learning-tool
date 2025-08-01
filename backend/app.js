@@ -10,6 +10,7 @@ const db = require('./db/db');
 const { use } = require('react');
 const totalScoreRoutes = require('./routes/totalScore');
 const questionRoutes = require('./routes/questions');
+const scoreRoutes = require('./routes/score');
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 //console.log('totalScoreRoutes:', totalScoreRoutes);
 app.use('/api/score', totalScoreRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/score', require('./routes/score'));
 //test database route and connection
 db.query('SELECT NOW()')
   .then((res) => {

@@ -3,7 +3,10 @@
 import Header from '../components/hNf/Header';
 import React, { use, useEffect, useState } from 'react';
 import erImage from '../images/ERDiagram.png'; // Assuming you have an ER diagram image
-
+import { useNavigate } from 'react-router-dom';
+import { LanguageContext } from '../context/languageContext';
+import { useContext } from 'react';
+import { useAuth } from '../context/AuthContext';
 type QuestionType = 'mcq' | 'multi';
 
 interface Question {
@@ -14,6 +17,11 @@ interface Question {
   correct_option_index?: number;         // for mcq
   correct_option_indexes?: number[];     // for multi
 }
+interface AnswerReview {
+  question: Question;
+  studentAns: number | number[];
+  isCorrect: boolean;
+}
 
 export default function ExamPage() {
   //const [question, setQuestion] =  useState<{ id: number; question_text: string } | null>(null);
@@ -22,7 +30,39 @@ export default function ExamPage() {
   const [studentAns, setStudentAns] = useState<number | number[]>(-1);
   const [result, setResult] = useState<string | null>(null);
   const [showER, setShowER] = useState(false);
-
+  const studentId = localStorage.getItem('studentId');
+  const [scoreCount, setScoreCount] = useState(0);
+  const [questionLimit, setQuestionLimit] = useState(0);
+  const [answerReview, setAnswerReview] = useState<AnswerReview[]>([]);
+  const [examFinished, setExamFinished] = useState(false);
+  const [submittedScore, setsubmittedScore] = useState(false);
+  const navigate = useNavigate();
+  const langContext = useContext(LanguageContext);
+  const { multiLang, ChangeLanguage } = (langContext || { multiLang: 'FI', ChangeLanguage: () => {} }) as {
+      multiLang: 'EN' | 'FI';
+      ChangeLanguage: (lang: 'EN' | 'FI') => void;
+    };
+  const maxQuestions = 10; // Set a limit for the number of questions 
+  console.log("question amount", questionLimit);
+    const text = {
+    EN: {
+      startQuizAgain: 'Do Quiz Again',
+      backToHomePage: 'Home'
+    },
+    FI: {
+      startQuizAgain: 'Aloita testi uudelleen',
+      backToHomePage: 'Etusivulle'
+    },
+  };
+  const resetExamState = () => {
+    setQuestion(null);
+    setStudentAns(-1);
+    setResult(null);
+    setScoreCount(0);
+    setQuestionLimit(0);
+    setAnswerReview([]);
+    setExamFinished(false);
+    };
   const fetchQuestion = async () => {
     const res = await fetch('/api/questions/random');
     const data = await res.json();
@@ -39,19 +79,62 @@ export default function ExamPage() {
   };
 
   const handleSubmit = async () => {
+      if (!question || studentAns === -1|| studentAns === null) {
+        alert('Missing answer');
+        return;
+        }
+        if(!studentId) {
+        return alert('Please login before submitting answers.');
+        return;
+        }
+  
     const res = await fetch('/api/questions/check-ans', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ questionId: question?.id, studentAns })
-
+      body: JSON.stringify({ 
+        questionId: question?.id, 
+        studentAns, 
+        studentId
+      })
     });
+
     const data = await res.json();
-    setResult(data.result ? "Correct!" : "Incorrect, try again.");
-    //setStudentAns(""); // Reset answer after submission
+    const isCorrect = data.result;
+    setResult(data.result ? "Correct!" : "Incorrect.");
+
+    if (isCorrect) {
+      setScoreCount((prev) => prev + 1);
+    }
+    setAnswerReview((prev) => [...prev,
+      { question, studentAns, isCorrect } ]);
+    setQuestionLimit((prev) => prev + 1); // Increment question count
+    if (questionLimit + 1 >= maxQuestions) {
+      setExamFinished(true);
+    } else {
+      fetchQuestion();
+    }
   };
+    //setStudentAns(""); // Reset answer after submission  
   useEffect(() => {
-    fetchQuestion();
-  }, []);
+    if (!examFinished){fetchQuestion(); }
+    if (examFinished && !submittedScore) {
+    const weightedScore = parseFloat(((scoreCount / maxQuestions) * 100).toFixed(2));
+    console.log("Weighted Score:", weightedScore);
+    alert(`Exam finished! Your score is ${weightedScore}%.`);
+    
+        fetch('/api/score/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId,
+        score: weightedScore,
+      }),
+    })
+    .then(res => res.json())
+    .then(data => console.log('Score saved:', data))
+    .catch(err => console.error('Failed to save score:', err));
+  }
+  }, [examFinished,scoreCount]);
   //esc key to close ER diagram
 useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,12 +143,72 @@ useEffect(() => {
   window.addEventListener('keydown', handleKeyDown);
   return () => window.removeEventListener('keydown', handleKeyDown);
 }, []);
+
   return (
     <div className="min-h-screen bg-gray-100">
     
       <main className="p-4 max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Exam Page Here</h1>
-{question ? (
+
+       {examFinished ? (
+          <div className="bg-white p-6 rounded shadow">
+            <h2 className="text-xl font-bold mb-4">Exam Finished 🎉</h2>
+            <p className="mb-2">Your Scores：{scoreCount} / {maxQuestions}</p>
+            <h3 className="text-lg font-semibold mb-2">Question Review：</h3>
+            {answerReview.map((item, index) => (
+              <div key={index} className="mb-4 border-b pb-2">
+                <p className="font-semibold">Q{index + 1}: {item.question.question_text}</p>
+                <ul className="ml-4 list-disc">
+                  {item.question.options.map((opt, idx) => (
+                    <li
+                      key={idx}
+                      className={
+                        (item.question.question_type === 'mcq' && idx === item.question.correct_option_index) ||
+                        (item.question.question_type === 'multi' && item.question.correct_option_indexes?.includes(idx))
+                          ? 'text-green-600 font-semibold'
+                          : ''
+                      }
+                    >
+                      {opt}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1">
+                  Your Answer:{" "}
+                  {Array.isArray(item.studentAns)
+                    ? item.studentAns.map(i => item.question.options[i]).join(', ')
+                    : item.question.options[item.studentAns]}
+                </p>
+                <p className={item.isCorrect ? "text-green-600" : "text-red-600"}>
+                  {item.isCorrect ? "✅ correct" : "❌ incorrect"}
+                </p>
+
+              </div>
+            ))}
+            <div className="flex flex-wrap gap-4 mt-4">
+              <button
+                onClick={() =>  {
+                    resetExamState();
+                    fetchQuestion();
+                  }}
+                className="bg-green-600 text-white px-6 py-2 rounded"
+              >
+                {text[multiLang].startQuizAgain}
+              </button>
+                      <button
+                onClick={() => 
+                  {
+                  resetExamState();
+                  navigate('/')}}
+                className="bg-blue-600 text-white px-6 py-2 rounded"
+              >
+                {text[multiLang].backToHomePage}
+              </button>
+            </div>
+
+          </div>
+        ) :
+question ? (
   <div className="bg-white p-4 rounded shadow">
     <p className="font-semibold mb-2">Question:</p>
     <p className="mb-4">{question.question_text}</p>

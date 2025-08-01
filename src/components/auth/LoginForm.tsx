@@ -38,8 +38,10 @@ export default function LoginForm() {
       const result = await response.json();
       
       if (response.ok) {
-        //login(result.name); // 儲存學生名字到 context/localStorage
-        login(result.student.name);
+        const student = result.student;
+       // save studentId to localStorage
+        localStorage.setItem('studentId', student.student_id);
+        login(result.student.student_id, result.student.name);
         //console.log('✅ Login success!');
         alert('Login successful');
         navigate('/');
