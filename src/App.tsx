@@ -6,6 +6,9 @@ import Header from './components/hNf/Header';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import ExamPage from './pages/ExamPage';
+import MyExamPage from './pages/MyExamPage';
+import AdminDashboard from './pages/AdminDashboard';
+import CreateQuestions from './pages/CreateQuestions';
 
 function App() {
 
@@ -16,6 +19,10 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/ExamPage" element={<ExamPage />} />
+      <Route path="/dashboard" element={<HomePage />} />
+      <Route path="/my-exam" element={<MyExamPage />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/CreateQuestions" element={<CreateQuestions/>} />
       {/* Add more routes as needed */}
     </Routes>
      

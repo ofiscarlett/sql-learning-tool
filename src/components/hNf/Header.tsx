@@ -46,8 +46,8 @@ export default function Header() {
         <div className="flex items-center space-x-6">
           <span className="text-xl font-bold text-gray-800">{text[multiLang].title}</span>
           <nav className="flex space-x-4 text-sm text-gray-600">
-            <a href="#" className="hover:text-black">{text[multiLang].dashboard}</a>
-            <a href="#" className="hover:text-black">{text[multiLang].exam}</a>
+           <a onClick={() => navigate('/dashboard')} className="hover:text-black cursor-pointer">{text[multiLang].dashboard}</a>
+           <a onClick={() => navigate('/my-exam')} className="hover:text-black cursor-pointer">{text[multiLang].exam}</a>
           </nav>
         </div>
           {/* middle */}

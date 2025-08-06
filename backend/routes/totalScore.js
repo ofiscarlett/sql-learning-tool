@@ -8,16 +8,12 @@ router.get('/summary/:studentId', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT 
-         COALESCE(SUM(a.score), 0) AS total_score,
-         COALESCE(SUM(q.point_weight), 0) AS max_score,
+         COUNT(*) AS total_questions,
+         ROUND(SUM(a.score)::numeric / 100, 2) AS correct_equivalent,
          ROUND(
-           CASE 
-             WHEN SUM(q.point_weight) = 0 THEN 0
-             ELSE SUM(a.score)::numeric / SUM(q.point_weight)::numeric * 100 
-           END, 2
+           SUM(a.score)::numeric / (COUNT(*) * 100) * 100, 2
          ) AS percentage
        FROM answers a
-       JOIN questions q ON a.question_id = q.id
        WHERE a.student_id = $1`,
       [studentId]
     );

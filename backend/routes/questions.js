@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
 const { calculatePartialScore } = require('../routes/partialScore');
+const dotenv = require('dotenv');
+dotenv.config();
 
 router.get('/random', async (req, res) => {
   try {
@@ -54,18 +56,10 @@ router.post('/check-ans', async (req, res) => {
     let score = 0;
 
     if (question.question_type === 'mcq') {
-     //const correctOption = question.options[question.correct_option_index];
-      //isCorrect =Number(studentAns) === correctOption;
-      //isCorrect =Number(studentAns) === question.correct_option_index;
       const selectedIndex = Number(studentAns);
-      //selectedIndex === question.correct_option_index;
       isCorrect = selectedIndex === question.correct_option_index;
       score = isCorrect ? 100 : 0;
-
     } else if (question.question_type === 'multi') {
-      //const studentChoices = Array.isArray(studentAns) ? studentAns : JSON.parse(studentAns);
-      //const correct = question.correct_option_indexes.sort().join(',');
-      //const submitted = studentChoices.map(Number).sort().join(',');
       let studentChoices = [];
        if (Array.isArray(studentAns)) {
         studentChoices = studentAns;
@@ -80,13 +74,29 @@ router.post('/check-ans', async (req, res) => {
       }     
       const correctArray = (question.correct_option_indexes || []).map(Number).sort();
       const studentArray = studentChoices.map(Number).sort();
-      const intersection = studentArray.filter(i => correctArray.includes(i));
-      const partialScore = (intersection.length / correctArray.length) * 100;
-      //isCorrect = submitted === correct;
-      isCorrect = JSON.stringify(studentArray) === JSON.stringify(correctArray); 
-      score = Math.round(partialScore);
+      //const intersection = studentArray.filter(i => correctArray.includes(i));
+      //const partialScore = (intersection.length / correctArray.length) ;
+      const correctSet = new Set(correctArray);
+      const studentSet = new Set(studentArray);
 
+      const correctlySelected = studentArray.filter(i => correctSet.has(i));
+      const wronglySelected = studentArray.filter(i => !correctSet.has(i));
+      let rawscore = correctlySelected.length - wronglySelected.length;
+      rawscore = Math.max(rawscore, 0);
+
+      const partialScore = rawscore / correctArray.length;
+      const pointWeight = question.point_weight || 1;
+      score = Math.round(partialScore * pointWeight * 100);  
+      isCorrect = partialScore === 1; // Full credit if all correct options are selected
       //score = isCorrect ? 100 : 0;
+      console.log('correctArray:', correctArray);
+      console.log('studentArray:', studentArray);
+      console.log('correctlySelected:', correctlySelected);
+      console.log('wronglySelected:', wronglySelected);
+      console.log('rawscore:', rawscore);
+      console.log('partialScore:', partialScore);
+      console.log('final score:', score);
+
 
     } else {
       return res.status(400).json({ result: false, message: 'Unsupported question type.' });
@@ -104,5 +114,50 @@ router.post('/check-ans', async (req, res) => {
     res.status(500).json({ result: false, message: err.message });
   }
 });
+
+router.post("/createQuestion", async (req, res) => {
+  const { question_text, question_type, options, correct_option_index, correct_option_indexes }
+    = req.body;
+    const AUTH_TOKEN = process.env.AUTH_TOKEN  || 'mysecrettoken';
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const token = authHeader.split(' ')[1];
+    if (token !== AUTH_TOKEN) {
+      return res.status(403).json({ message: 'Unauthorized: Invalid token' });
+    }
+    /*
+    if (req.headers.authorization !== `Bearer ${AUTH_TOKEN}`) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+      */
+
+    if (!question_text || !question_type || !options || options.length === 0) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // check correct answer files
+    if (question_type === 'mcq' && (correct_option_index === undefined || correct_option_index < 0 || correct_option_index >= options.length)) {
+      return res.status(400).json({ message: 'Missing or invalid correct_option_index for MCQ' });
+    }
+
+    if (question_type === 'multi' && (!Array.isArray(correct_option_indexes) || correct_option_indexes.length === 0)) {
+      return res.status(400).json({ message: 'Missing correct_option_indexes for Multi' });
+    }
+
+  try { 
+    const result = await db.query(
+      `INSERT INTO questions (question_text, question_type, options, correct_option_index, correct_option_indexes)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [question_text, question_type, options, correct_option_index, correct_option_indexes]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error creating question:', err);
+    res.status(500).json({ message: 'Server error' });
+  } 
+});
+
 
 module.exports = router;

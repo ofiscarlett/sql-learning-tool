@@ -11,7 +11,7 @@ const { use } = require('react');
 const totalScoreRoutes = require('./routes/totalScore');
 const questionRoutes = require('./routes/questions');
 const scoreRoutes = require('./routes/score');
-
+const authRoutes = require('./routes/auth');
 dotenv.config();
 
 const app = express();
@@ -28,7 +28,11 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use('/api/score', totalScoreRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/score', require('./routes/score'));
+//app.use('/api/createQuestion', require('./routes/createQuestion'));
 //test database route and connection
+app.use('/api/auth', authRoutes);
+
+
 db.query('SELECT NOW()')
   .then((res) => {
     console.log('Database connected at:', res.rows[0].now);
@@ -44,6 +48,7 @@ app.get('/', (req, res) => {
 });
 
 // 登入 API（記得 password 是加密比對）
+/*
 app.post('/api/login', async (req, res) => {
   const { studentId, password } = req.body;
   console.log('debug login', studentId, password);
@@ -68,23 +73,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
-//add studnet for teacher
-app.post('/api/addStudent', async (req, res) => {
-  const { studentId, name, password } = req.body;
-  const bcrypt = require('bcryptjs');
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10); // ✅ 移進來 try 區塊
-    await db.query(
-      'INSERT INTO students (student_id, name, password) VALUES ($1, $2, $3)',
-      [studentId, name, hashedPassword]
-    );
-    res.status(201).json({ message: 'Student added successfully' });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error adding student' });
-  }
-});
+*/
 
 
 app.use('/api/questions', questionRoutes);
