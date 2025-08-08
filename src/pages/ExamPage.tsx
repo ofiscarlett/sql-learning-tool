@@ -39,6 +39,7 @@ export default function ExamPage() {
   const [correctAnswerText, setCorrectAnswerText] = useState<string | null>(null);
   const [clickForNext, setClickForNext] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [answeredQuestion, setAnsweredQuestion] = useState<number[]>([]);
   const navigate = useNavigate();
   const langContext = useContext(LanguageContext);
   const { multiLang, ChangeLanguage } = (langContext || { multiLang: 'FI', ChangeLanguage: () => {} }) as {
@@ -75,9 +76,14 @@ export default function ExamPage() {
     setQuestionLimit(0);
     setAnswerReview([]);
     setExamFinished(false);
+    setAnsweredQuestion([]);
     };
   const fetchQuestion = async () => {
-    const res = await fetch('/api/questions/random');
+    const res = await fetch('/api/questions/random', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ excludeIds: answeredQuestion })
+    });
     const data = await res.json();
     setQuestion(data);
     setCorrectAnswerText(null);
@@ -87,6 +93,7 @@ export default function ExamPage() {
         setStudentAns([]); // set as empty array for multi-select
       }
       setResult(null); // Reset result
+      setAnsweredQuestion((prev) => [...prev, data.id]); // Add to answered questions
 
   }
 

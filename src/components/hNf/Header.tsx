@@ -3,14 +3,16 @@ import headerImage from '../../images/school-logo-05.png';
 import { useAuth } from '../../context/AuthContext';
 import { LanguageContext } from '../../context/languageContext';
 import { useNavigate } from 'react-router-dom';
+import AdminDashboard from '../../pages/AdminDashboard';
 
 export default function Header() {
   const langContext = useContext(LanguageContext);
   const { multiLang, ChangeLanguage } = (langContext || { multiLang: 'FI', ChangeLanguage: () => {} }) as { multiLang: 'EN' | 'FI'; ChangeLanguage: (lang: 'EN' | 'FI') => void };
+
   console.log("🔁 current multiLang:", multiLang);
   //const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [studentName, setStudentName] = useState('');
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const navigate = useNavigate();
 
 /*
@@ -29,11 +31,15 @@ export default function Header() {
     EN: {
       title: 'Moodle',
       dashboard: 'Dashboard',
+      AdminDashboard: 'Admin Dashboard',
+      viewScores: 'View Scores',
       exam: 'My Exam',
     },
     FI: {
       title: 'Moodli',
+      AdminDashboard: 'Opettajan Työpöytä',
       dashboard: 'Työpöytä',
+      viewScores: 'Katso Arvosanat',
       exam: 'Tenttini',
     },
     };
@@ -46,8 +52,27 @@ export default function Header() {
         <div className="flex items-center space-x-6">
           <span className="text-xl font-bold text-gray-800">{text[multiLang].title}</span>
           <nav className="flex space-x-4 text-sm text-gray-600">
-           <a onClick={() => navigate('/dashboard')} className="hover:text-black cursor-pointer">{text[multiLang].dashboard}</a>
-           <a onClick={() => navigate('/my-exam')} className="hover:text-black cursor-pointer">{text[multiLang].exam}</a>
+  {role === 'student' && (
+    <>
+      <a onClick={() => navigate('/dashboard')} className="hover:text-black cursor-pointer">
+        {text[multiLang].dashboard}
+      </a>
+      <a onClick={() => navigate('/my-exam')} className="hover:text-black cursor-pointer">
+        {text[multiLang].exam}
+      </a>
+    </>
+  )}
+
+  {role === 'teacher' && (
+    <>
+      <a onClick={() => navigate('/admin')} className="hover:text-black cursor-pointer">
+        {text[multiLang].AdminDashboard}
+      </a>
+      <a onClick={() => navigate('/admin/student-scores')} className="hover:text-black cursor-pointer">
+        {text[multiLang].viewScores}
+      </a>
+    </>
+  )}
           </nav>
         </div>
           {/* middle */}
@@ -67,7 +92,8 @@ export default function Header() {
           {user ? (
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-700">{user}</span>
-              <button onClick={logout} className="text-blue-500 underline">Logout</button>
+              <button onClick={()=>{ logout(); navigate('/')} } 
+              className="text-blue-500 underline">Logout</button>
             </div>
           ) : (
             <button onClick={()=>navigate("/login")} className="text-blue-500 underline">Login</button>
@@ -89,3 +115,5 @@ export default function Header() {
     </header>
   );
 }
+  {/* 
+     */}

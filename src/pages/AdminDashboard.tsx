@@ -11,13 +11,6 @@ export default function AdminDashboard() {
 
       <div className="space-y-4 w-full max-w-md">
         <button
-          onClick={() => navigate('/admin/create-student')}
-          className="w-full bg-blue-600 text-white py-3 px-6 rounded hover:bg-blue-700"
-        >
-          Add Student
-        </button>
-
-        <button
           onClick={() => navigate('/CreateQuestions')}
           className="w-full bg-green-600 text-white py-3 px-6 rounded hover:bg-green-700"
         >

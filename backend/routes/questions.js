@@ -5,22 +5,28 @@ const { calculatePartialScore } = require('../routes/partialScore');
 const dotenv = require('dotenv');
 dotenv.config();
 
-router.get('/random', async (req, res) => {
+router.post('/random', async (req, res) => {
+  const { excludeIds } = req.body;
+
   try {
-      const result = await db.query(`
+    const result = await db.query(`
       SELECT id, question_text, question_type, options, correct_option_index, correct_option_indexes
       FROM questions
+      WHERE NOT id = ANY($1::int[])
       ORDER BY RANDOM() LIMIT 1
-    `);
+    `, [excludeIds || []]);
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'No questions found' });
     }
+
     res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error('Error fetching random question:', err);
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
 // GET /answers/:studentId
 router.get('/answers/:studentId', async (req, res) => {
   const { studentId } = req.params;

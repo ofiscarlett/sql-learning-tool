@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LanguageContext } from '../../context/languageContext';
@@ -47,15 +47,19 @@ export default function LoginForm() {
       if (response.ok) {
         //const {role} = result;
         if(result.role === 'student') { 
-        localStorage.setItem('studentId', result.student.student_id);
-        login(result.student.student_id, result.student.name);
+          localStorage.setItem('studentId', result.student.student_id);
+        login(result.student.student_id, result.student.name, 'student');
+        
+        //login(result.student.student_id, result.student.name);
+        
         //console.log('✅ Login success!');
         alert('Login successful');
         navigate('/');
         }else if (result.role === 'teacher') {
         localStorage.setItem('teacherToken', result.token);
+        login(result.teacher.username, result.teacher.username, 'teacher');
         //login(result.teacher.username, result.teacher.username);
-        login(result.teacher.username, result.role);
+        //login(result.teacher.username, result.role);
 
         alert('Logged in as teacher');
         navigate('/admin');

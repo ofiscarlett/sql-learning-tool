@@ -9,6 +9,8 @@ import ExamPage from './pages/ExamPage';
 import MyExamPage from './pages/MyExamPage';
 import AdminDashboard from './pages/AdminDashboard';
 import CreateQuestions from './pages/CreateQuestions';
+import SeeStudentScores from './pages/SeeStudentScores';
+import StudentAllScore from './pages/StudentAllScore';
 
 function App() {
 
@@ -23,6 +25,9 @@ function App() {
       <Route path="/my-exam" element={<MyExamPage />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/CreateQuestions" element={<CreateQuestions/>} />
+      <Route path="/admin/student-scores" element={<SeeStudentScores />}/>
+      <Route path="/admin/student-scores/:studentId" element={<StudentAllScore />} />
+ 
       {/* Add more routes as needed */}
     </Routes>
      
