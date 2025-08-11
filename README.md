@@ -1,46 +1,95 @@
-# Getting Started with Create React App
+# SQL Learning Tool
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive web-based platform for learning and practicing SQL.  
+Students can log in, attempt SQL exercises, view ER diagrams, and get instant feedback by comparing their queries against teacher-provided solutions.  
+Teachers can create questions, manage students, and review results.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## ✨ Features
 
-### `npm start`
+### For Students
+- **SQL Query Execution** — Write and run SQL queries in the browser against a preloaded database.
+- **Question Types** — Multiple Choice (MCQ), Multi-select, and Fill-in-the-blank SQL.
+- **ER Diagrams** — Visual database schema reference for each exercise.
+- **Instant Feedback** — Compare your query output with the correct answer.
+- **Score Tracking** — View your final score after completing the quiz.
+- **Answer Review** — Check your submitted answers with explanations.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### For Teachers
+- **Student Management** — Create student accounts with secure password hashing.
+- **Question Management** — Add/update/delete questions with options and correct answers.
+- **Custom Database Schema** — Define the schema students will run queries against.
+- **Result Review** — View student performance.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠 Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Frontend:**
+- React
+- TypeScript
+- Tailwind CSS
+- Axios (API calls)
 
-### `npm run build`
+**Backend:**
+- Node.js
+- Express
+- PostgreSQL
+- bcrypt (password hashing)
+- JSON Web Token (JWT) for authentication
+- CORS support
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📂 Project Structure
+sql-learning-tool/
+│
+├── backend/
+│ ├── src/
+│ │ ├── db/ # PostgreSQL connection & schema
+│ │ ├── routes/ # Express API routes
+│ │ ├── controllers/ # Business logic
+│ │ ├── middleware/ # Auth & validation
+│ │ └── utils/ # Helper functions
+│ ├── package.json
+│ └── .env # DB credentials & JWT secret
+│
+├── frontend/
+│ ├── src/
+│ │ ├── components/ # Reusable UI components
+│ │ ├── pages/ # Page-level components
+│ │ ├── hooks/ # Custom React hooks
+│ │ ├── services/ # API calls
+│ │ └── styles/ # Tailwind config & styles
+│ ├── package.json
+│ └── .env # API URL config
+│
+└── README.md
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+##  Installation & Setup
 
-### `npm run eject`
+### 1 Clone the Repository
+```bash
+git clone https://github.com/your-username/sql-learning-tool.git
+cd sql-learning-tool
+```
+### 2 Backend Setup and start
+```bash
+cd backend
+npm install
+npm run dev
+```
+Create a .env file
+PORT=5000
+DATABASE_URL=postgresql://username:password@localhost:5432/sql_learning
+JWT_SECRET=your_jwt_secret
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3 Frontend Setup and start
+```bash
+cd ../frontend
+npm install
+npm start
+```
+Create a .env file
