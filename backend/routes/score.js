@@ -56,9 +56,6 @@ router.get('/top3-perStudent', async (req, res) => {
       if (score !== null && groupScores[student_id].scores.length < 3) {
         groupScores[student_id].scores.push(score);
       }
-     // if (groupScores[student_id].scores.length < 3) {
-     //   groupScores[student_id].scores.push(score);
-     // }
     }
 
     const top3List = Object.values(groupScores).map(student => ({

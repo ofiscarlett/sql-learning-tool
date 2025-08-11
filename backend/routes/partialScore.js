@@ -34,7 +34,7 @@ function calculatePartialScore(studentAns, correctAns) {
  if (JSON.stringify(sFrom) === JSON.stringify(cFrom)) {
   score += 1;
 } else if (sFrom.some(t => cFrom.includes(t))) {
-  score += 0.5; // 至少有命中一個表
+  score += 0.5; 
 }
   totalScore += 1;
   if (studentAst.orderBy && correctAst.orderBy) score += 1;

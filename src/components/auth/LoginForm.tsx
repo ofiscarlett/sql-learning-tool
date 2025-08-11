@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import { LanguageContext } from '../../context/languageContext';
 
 export default function LoginForm() {
-  //const [studentId, setStudentId] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
@@ -45,22 +44,14 @@ export default function LoginForm() {
       const result = await response.json();
       
       if (response.ok) {
-        //const {role} = result;
         if(result.role === 'student') { 
           localStorage.setItem('studentId', result.student.student_id);
         login(result.student.student_id, result.student.name, 'student');
-        
-        //login(result.student.student_id, result.student.name);
-        
-        //console.log('✅ Login success!');
         alert('Login successful');
         navigate('/');
         }else if (result.role === 'teacher') {
         localStorage.setItem('teacherToken', result.token);
         login(result.teacher.username, result.teacher.username, 'teacher');
-        //login(result.teacher.username, result.teacher.username);
-        //login(result.teacher.username, result.role);
-
         alert('Logged in as teacher');
         navigate('/admin');
       }

@@ -1,12 +1,5 @@
 import React, { useState, createContext, ReactNode } from "react";
-
-/*
-interface LanguageContextType {
-  multiLang: string;
-  ChangeLanguage: (lang: string) => void;
-}
-  */
-export type Lang = 'EN' | 'FI'; // ✅ defind the type for language
+export type Lang = 'EN' | 'FI'; // defind the type for language
 
 interface LanguageContextType {
   multiLang: Lang;

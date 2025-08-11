@@ -347,39 +347,33 @@ question ? (
               fetchQuestion();
             }
             return next;
-          });
-          //fetchQuestion();
-          //setQuestionLimit((prev) => {
-          //const nextCount = prev + 1;
-          //if (nextCount >= maxQuestions) {
-          //  setExamFinished(true);
-          //} else {
-          //  fetchQuestion();
-          //}
-          //return nextCount;
-        //});
-          //fetchQuestion();                       // change to next
+          });                   // change to next
 
         }}
         className="bg-gray-600 text-white px-4 py-2 rounded"
       >
         {text[multiLang].nextQuestion}
       </button>
-
-      {correctAnswerText && (
-        <p className="text-red-600">
-          {correctAnswerText}
-        </p>  
-      )}
+      <button
+          onClick={() => setShowER(true)}
+          className="bg-yellow-600 text-white px-4 py-2 rounded"
+        >
+          Show ER Diagram
+        </button>
+          {correctAnswerText && (
+            <p className="text-red-600">
+              {correctAnswerText}
+            </p>  
+         )}
     </div>
 
-    {result && (
-      <div className="bg-yellow-100 text-gray-800 p-3 rounded shadow">{result}</div>
+        {result && (
+          <div className="bg-yellow-100 text-gray-800 p-3 rounded shadow">{result}</div>
+        )}
+      </div>
+    ) : (
+      <p>Loading question...</p>
     )}
-  </div>
-) : (
-  <p>Loading question...</p>
-)}
 
       </main>
 {showER && (
@@ -404,13 +398,6 @@ question ? (
     </div>
   </div>
 )}
-
-
     </div>
   );
 }
- {/* old code 
-        <button onClick={fetchQuestion} className="bg-gray-600 text-white px-4 py-2 rounded">
-        {text[multiLang].nextQuestion}
-      </button>
-  */}

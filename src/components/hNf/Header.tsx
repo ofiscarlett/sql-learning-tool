@@ -10,23 +10,10 @@ export default function Header() {
   const { multiLang, ChangeLanguage } = (langContext || { multiLang: 'FI', ChangeLanguage: () => {} }) as { multiLang: 'EN' | 'FI'; ChangeLanguage: (lang: 'EN' | 'FI') => void };
 
   console.log("🔁 current multiLang:", multiLang);
-  //const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [studentName, setStudentName] = useState('');
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
 
-/*
-  const handleLogin = () => {
-    // login API、OAuth 
-    setIsLoggedIn(true);
-    setStudentName('Alex Niemi');
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setStudentName('');
-  };
-*/
   const text = {
     EN: {
       title: 'Moodle',
@@ -87,7 +74,6 @@ export default function Header() {
             <span>|</span>
             <button onClick={() => ChangeLanguage('FI')} className={multiLang === 'FI' ? 'font-bold text-black' : ''}>FI</button>
           </div>
-
           {/* login */}
           {user ? (
             <div className="flex items-center space-x-2">
@@ -99,7 +85,6 @@ export default function Header() {
             <button onClick={()=>navigate("/login")} className="text-blue-500 underline">Login</button>
           )}
         </div>
-
     {/* right side */}
     <div className="flex items-center ml-4">
         <img
@@ -108,12 +93,8 @@ export default function Header() {
         className="h-10 w-auto object-contain self-start"
       />
       </div>
- 
-
         </div>
       
     </header>
   );
 }
-  {/* 
-     */}

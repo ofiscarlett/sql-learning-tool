@@ -8,7 +8,6 @@ interface AuthContextType {
     logout: () => void;
 }
 
-//const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthContext = createContext<AuthContextType>({
   user: null,
   studentId: null,
@@ -21,9 +20,6 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
     const [user, setUser] = useState<string | null>(null);
     const [studentId, setStudentId] = useState<string | null>(null);
     const [role, setRole] = useState<"student" | "teacher" | null>(null);
-
-
-
 
     useEffect(() => {
         const id = localStorage.getItem('studentId');

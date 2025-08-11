@@ -12,7 +12,7 @@ export default function ExamCard() {
         </nav>
       </div>
 
-      {/* 右側：搜尋、通知、使用者 */}
+      {/* right:search、notice 、user */}
       <div className="flex items-center space-x-4 text-gray-600 text-lg">
         <span title="Search">🔍</span>
         <span title="Notifications">🔔</span>

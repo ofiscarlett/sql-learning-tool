@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
-//add studnet for teacher
+//add studnet for admin, not show in UI 
 router.post('/addStudent', async (req, res) => {
   const { studentId, name, password } = req.body;
 

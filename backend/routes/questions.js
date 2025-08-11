@@ -80,8 +80,6 @@ router.post('/check-ans', async (req, res) => {
       }     
       const correctArray = (question.correct_option_indexes || []).map(Number).sort();
       const studentArray = studentChoices.map(Number).sort();
-      //const intersection = studentArray.filter(i => correctArray.includes(i));
-      //const partialScore = (intersection.length / correctArray.length) ;
       const correctSet = new Set(correctArray);
       const studentSet = new Set(studentArray);
 
@@ -94,7 +92,6 @@ router.post('/check-ans', async (req, res) => {
       const pointWeight = question.point_weight || 1;
       score = Math.round(partialScore * pointWeight * 100);  
       isCorrect = partialScore === 1; // Full credit if all correct options are selected
-      //score = isCorrect ? 100 : 0;
       console.log('correctArray:', correctArray);
       console.log('studentArray:', studentArray);
       console.log('correctlySelected:', correctlySelected);
@@ -102,8 +99,6 @@ router.post('/check-ans', async (req, res) => {
       console.log('rawscore:', rawscore);
       console.log('partialScore:', partialScore);
       console.log('final score:', score);
-
-
     } else {
       return res.status(400).json({ result: false, message: 'Unsupported question type.' });
     }
@@ -133,11 +128,6 @@ router.post("/createQuestion", async (req, res) => {
     if (token !== AUTH_TOKEN) {
       return res.status(403).json({ message: 'Unauthorized: Invalid token' });
     }
-    /*
-    if (req.headers.authorization !== `Bearer ${AUTH_TOKEN}`) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
-      */
 
     if (!question_text || !question_type || !options || options.length === 0) {
       return res.status(400).json({ message: 'Missing required fields' });
